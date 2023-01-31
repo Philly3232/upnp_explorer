@@ -12,6 +12,3 @@ class DiscoveryInitial extends ApplicationState {}
 
 class NoNetwork extends ApplicationState {}
 class Ready extends ApplicationState {}
-class ReviewRequested extends ApplicationState {
-  ReviewRequested() : super(build: false);
-}

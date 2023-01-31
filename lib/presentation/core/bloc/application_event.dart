@@ -15,7 +15,3 @@ class ConnectivityChanged extends ApplicationEvent {
   @override
   List<Object> get props => [connectivity];
 }
-
-class NeverReview extends ApplicationEvent {}
-
-class ReviewNow extends ApplicationEvent {}

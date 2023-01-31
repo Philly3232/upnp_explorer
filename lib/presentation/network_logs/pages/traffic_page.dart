@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../application/ioc.dart';
+import '../../../application/ioc/ioc.dart';
 import '../../../application/l10n/generated/l10n.dart';
 import '../../../domain/network_logs/network_logs_repository_type.dart';
 import '../../../domain/network_logs/traffic.dart';

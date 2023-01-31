@@ -7,7 +7,7 @@ import '../application.dart';
 const _launchedDateKey = 'review_launchedDate';
 const _neverAskAgainKey = 'review_neverAskAgain';
 
-@Singleton()
+@LazySingleton()
 class ReviewService {
   final _days = 7;
   final _inAppReview = InAppReview.instance;
@@ -53,5 +53,3 @@ class ReviewService {
     return _inAppReview.openStoreListing(appStoreId: Application.appId);
   }
 }
-
-enum ReviewResponse { notNow, never, ok }

@@ -5,34 +5,21 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:equatable/equatable.dart';
 import 'package:injectable/injectable.dart';
 
-import '../../../application/review/review_service.dart';
-
 part 'application_event.dart';
 part 'application_state.dart';
 
-@Singleton()
+@LazySingleton()
 class ApplicationBloc extends Bloc<ApplicationEvent, ApplicationState> {
   final Connectivity _connectivity = Connectivity();
-  final ReviewService _reviewService;
 
   StreamSubscription? _connectivitySubscription;
 
-  ApplicationBloc(this._reviewService) : super(DiscoveryInitial()) {
-    on<ReviewNow>((event, emit) => _onReviewNow());
-    on<NeverReview>((event, emit) => _onNeverReview());
+  ApplicationBloc() : super(DiscoveryInitial()) {
     on<ConnectivityChanged>(
         (event, emit) => _onConnectivityChanged(event.connectivity, emit));
     _connectivity.checkConnectivity().then((c) => add(ConnectivityChanged(c)));
     _connectivitySubscription = _connectivity.onConnectivityChanged
         .listen((c) => add(ConnectivityChanged(c)));
-  }
-
-  void _onReviewNow() {
-    _reviewService.launchInAppReview();
-  }
-
-  void _onNeverReview() {
-    _reviewService.neverAskAgain();
   }
 
   @override
@@ -42,7 +29,9 @@ class ApplicationBloc extends Bloc<ApplicationEvent, ApplicationState> {
   }
 
   void _onConnectivityChanged(
-      ConnectivityResult connectivityResult, Emitter emit) {
+    ConnectivityResult connectivityResult,
+    Emitter emit,
+  ) {
     if (connectivityResult != ConnectivityResult.wifi) {
       emit(NoNetwork());
     } else if (connectivityResult == ConnectivityResult.wifi) {

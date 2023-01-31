@@ -19,7 +19,7 @@ const _kThemeMap = {
 };
 const _material3Key = 'material3';
 
-@Singleton()
+@LazySingleton()
 class SettingsRepository {
   final SharedPreferences prefs;
 

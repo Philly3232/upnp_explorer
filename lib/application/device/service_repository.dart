@@ -4,7 +4,7 @@ import '../../domain/device/service_repository_type.dart';
 import '../../infrastructure/upnp/models/service_description.dart';
 
 @named
-@Singleton(as: ServiceRepositoryType)
+@LazySingleton(as: ServiceRepositoryType)
 class ServiceRepository extends ServiceRepositoryType {
   Map<String, ServiceDescription> services = {};
   @override
