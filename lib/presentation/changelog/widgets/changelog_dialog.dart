@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../application/changelog/changelog_service.dart';
-import '../../../application/ioc.dart';
+import '../../../application/ioc/ioc.dart';
 import '../../../application/l10n/generated/l10n.dart';
 import '../../../domain/changelog/change_version.dart';
 

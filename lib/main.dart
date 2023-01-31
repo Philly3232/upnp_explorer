@@ -4,9 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:upnp_explorer/application/logging/logging_bloc_observer.dart';
 
 import 'application/application.dart';
-import 'application/ioc.dart';
+import 'application/ioc/ioc.dart';
 import 'application/l10n/generated/l10n.dart';
 import 'application/routing/routes.dart';
 import 'application/settings/options.dart';
@@ -16,7 +17,7 @@ import 'infrastructure/upnp/device_discovery_service.dart';
 import 'presentation/core/widgets/model_binding.dart';
 import 'presentation/service/bloc/command_bloc.dart';
 
-void main() {
+void main({String environment = 'prd'}) {
   LicenseRegistry.addLicense(() async* {
     final license = await rootBundle.loadString('assets/google_fonts/OFL.txt');
     yield LicenseEntryWithLineBreaks(['google_fonts'], license);
@@ -27,20 +28,38 @@ void main() {
   });
 
   WidgetsFlutterBinding.ensureInitialized();
-  configureDependencies().then(
-    (_) => runApp(
-      BlocProvider.value(
-        value: sl<CommandBloc>(),
-        child: ModelBinding(
-          initialModel: sl<SettingsRepository>().get(),
-          onUpdate: sl<SettingsRepository>().set,
-          child: MyApp(
-            optionsRepository: sl(),
-          ),
+  configureDependencies(environment: environment).then(
+    (_) {
+      runApp(MyAppHost());
+    },
+  );
+}
+
+class MyAppHost extends StatefulWidget {
+  @override
+  State<MyAppHost> createState() => _MyAppHostState();
+}
+
+class _MyAppHostState extends State<MyAppHost> {
+  @override
+  void initState() {
+    Bloc.observer = sl<LoggingBlocObserver>();
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider.value(
+      value: sl<CommandBloc>(),
+      child: ModelBinding(
+        initialModel: sl<SettingsRepository>().get(),
+        onUpdate: sl<SettingsRepository>().set,
+        child: MyApp(
+          optionsRepository: sl(),
         ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -56,8 +75,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final options = Options.of(context);
-    sl<DeviceDiscoveryService>().protocolOptions = options.protocolOptions;
-
     sl<DeviceDiscoveryService>().protocolOptions = options.protocolOptions;
 
     return MaterialApp(

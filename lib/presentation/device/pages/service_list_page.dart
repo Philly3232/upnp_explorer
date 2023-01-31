@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:upnp_explorer/presentation/core/page/app_page.dart';
 
 import '../../../application/application.dart';
-import '../../../application/ioc.dart';
+import '../../../application/ioc/ioc.dart';
 import '../../../application/l10n/generated/l10n.dart';
 import '../../../application/routing/routes.dart';
 import '../../../domain/device/service_repository_type.dart';

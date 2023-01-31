@@ -5,7 +5,7 @@ import 'package:injectable/injectable.dart';
 import '../../../domain/device/device.dart';
 import '../../../infrastructure/upnp/ssdp_discovery.dart';
 
-@Singleton()
+@LazySingleton()
 class DiscoveryBloc {
   final SSDPService _discoveryService;
 

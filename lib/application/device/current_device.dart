@@ -6,19 +6,19 @@ import 'package:injectable/injectable.dart';
 const minimumMaterialYouSdkVersion = 31;
 
 @Singleton()
-class DeviceInfo {
+class CurrentDeviceInfo {
   final int sdkVersion;
 
   get supportsMaterial3 =>
       Platform.isAndroid && sdkVersion >= minimumMaterialYouSdkVersion;
 
-  DeviceInfo(this.sdkVersion);
+  CurrentDeviceInfo(this.sdkVersion);
 
   @preResolve
   @factoryMethod
-  static Future<DeviceInfo> create(DeviceInfoPlugin plugin) async {
+  static Future<CurrentDeviceInfo> create(DeviceInfoPlugin plugin) async {
     final info = await plugin.androidInfo;
 
-    return DeviceInfo(info.version.sdkInt);
+    return CurrentDeviceInfo(info.version.sdkInt);
   }
 }

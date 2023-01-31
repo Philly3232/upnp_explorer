@@ -4,7 +4,7 @@ import '../../domain/device/device_repository_type.dart';
 import '../../infrastructure/upnp/models/device.dart';
 
 @named
-@Singleton(as: DeviceRepositoryType)
+@LazySingleton(as: DeviceRepositoryType)
 class DeviceRepository extends DeviceRepositoryType {
   Map<String, Device> devices = {};
 

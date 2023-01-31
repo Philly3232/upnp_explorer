@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:injectable/injectable.dart';
 
-import '../../application/logger_factory.dart';
+import '../../application/logging/logger_factory.dart';
 import '../../application/settings/options.dart';
 import '../../domain/network_logs/direction.dart';
 import '../../domain/network_logs/network_logs_repository_type.dart';
@@ -19,7 +19,7 @@ const ssdpPort = 1900;
 final defaultPort = 35502;
 final InternetAddress ssdpV4Multicast = new InternetAddress(multicastAddress);
 
-@Singleton()
+@LazySingleton()
 class DeviceDiscoveryService {
   set protocolOptions(ProtocolOptions options) {
     _protocolOptions = options;
@@ -49,7 +49,7 @@ class DeviceDiscoveryService {
     LoggerFactory loggerFactory,
     this.trafficRepository,
     this.requestBuilder,
-  ) : logger = loggerFactory.build('DeviceDiscoveryService');
+  ) : logger = loggerFactory.create('DeviceDiscoveryService');
 
   Future<void> init() async {
     if (_sockets.isNotEmpty) {

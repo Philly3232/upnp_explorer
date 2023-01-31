@@ -9,7 +9,7 @@ import '../../domain/changelog/change_version.dart';
 
 const String lastChangelogVersion = 'lastChangelogVersion';
 
-@Singleton()
+@LazySingleton()
 class ChangelogService {
   final SharedPreferences prefs;
 

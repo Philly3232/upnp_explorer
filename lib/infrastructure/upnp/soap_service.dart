@@ -12,7 +12,7 @@ import '../../domain/upnp/action_response.dart';
 import '../../domain/upnp/error.dart';
 import 'search_request_builder.dart';
 
-@singleton
+@LazySingleton()
 class SoapService {
   final UserAgentBuilder userAgentBuilder;
   final NetworkLogsRepositoryType traffic;

@@ -6,8 +6,8 @@ import 'package:upnp_explorer/presentation/settings/widgets/settings/switch_tile
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../application/application.dart';
-import '../../../application/device.dart';
-import '../../../application/ioc.dart';
+import '../../../application/device/current_device.dart';
+import '../../../application/ioc/ioc.dart';
 import '../../../application/l10n/generated/l10n.dart';
 import '../../../application/settings/options.dart';
 import '../../../domain/value_converter.dart';
@@ -101,7 +101,7 @@ class _DisplaySettingsPage extends StatelessWidget {
           ),
           onTap: _nav(context, _VisualDensityPage()),
         ),
-        if (sl<DeviceInfo>().supportsMaterial3)
+        if (sl<CurrentDeviceInfo>().supportsMaterial3)
           SettingsTile(
             title: Text('Adaptive layout'),
             leading: Icon(Icons.layers_outlined),

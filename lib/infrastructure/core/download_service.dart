@@ -2,14 +2,14 @@ import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:injectable/injectable.dart';
 
-import '../../application/logger_factory.dart';
+import '../../application/logging/logger_factory.dart';
 
-@Singleton()
+@LazySingleton()
 class DownloadService {
   final Logger logger;
 
   DownloadService(LoggerFactory loggerFactory)
-      : logger = loggerFactory.build('DeviceDataService');
+      : logger = loggerFactory.create('DeviceDataService');
 
   Future<Response?> get(Uri uri) async {
     return download(uri.toString());

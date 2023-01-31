@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:injectable/injectable.dart';
 import 'package:xml/xml.dart';
 
-import '../../application/logger_factory.dart';
+import '../../application/logging/logger_factory.dart';
 import '../../domain/device/device.dart';
 import '../../domain/device/device_repository_type.dart';
 import '../../domain/device/service_repository_type.dart';
@@ -23,33 +23,39 @@ class SocketOptions {
   SocketOptions(this.interface, this.multicastAddress);
 }
 
-@Singleton()
-class SSDPService {
-  StreamController<UPnPDevice> controller =
+abstract class SSDPService {
+  Stream<UPnPDevice> findDevices() {
+    return Stream.empty();
+  }
+}
+
+@LazySingleton(as: SSDPService)
+class NetworkSSDPService extends SSDPService {
+  StreamController<UPnPDevice> _controller =
       StreamController<UPnPDevice>.broadcast();
 
-  final DownloadService download;
-  final DeviceDiscoveryService discovery;
+  final DownloadService _download;
+  final DeviceDiscoveryService _discovery;
   final Logger logger;
-  final DeviceRepositoryType deviceRepository;
-  final ServiceRepositoryType serviceRepository;
-  final NetworkLogsRepositoryType trafficRepository;
+  final DeviceRepositoryType _deviceRepository;
+  final ServiceRepositoryType _serviceRepository;
+  final NetworkLogsRepositoryType _trafficRepository;
 
-  final List<Object> seen = [];
+  final List<Object> _seen = [];
 
-  Stream<UPnPDevice> get stream => controller.stream;
+  Stream<UPnPDevice> get _stream => _controller.stream;
 
-  SSDPService(
-    this.discovery,
-    this.download,
-    LoggerFactory loggerFactory,
-    @Named('DeviceRepository') this.deviceRepository,
-    @Named('ServiceRepository') this.serviceRepository,
-    this.trafficRepository,
-  ) : logger = loggerFactory.build('SSDPService');
+  NetworkSSDPService(
+    this._discovery,
+    this._download,
+    LoggerFactory _loggerFactory,
+    @Named('DeviceRepository') this._deviceRepository,
+    @Named('ServiceRepository') this._serviceRepository,
+    this._trafficRepository,
+  ) : logger = _loggerFactory.create('SSDPService');
 
   _addDevice(Uri root, Device device) async {
-    deviceRepository.insert(device);
+    _deviceRepository.insert(device);
 
     for (final service in device.serviceList.services) {
       final downloadUri = new Uri(
@@ -59,7 +65,7 @@ class SSDPService {
         pathSegments: service.scpdurl.pathSegments,
       );
       try {
-        final response = await download.get(downloadUri);
+        final response = await _download.get(downloadUri);
 
         if (response == null) {
           continue;
@@ -68,11 +74,11 @@ class SSDPService {
         final serviceDescription = ServiceDescription.fromXml(
           XmlDocument.parse(response.body),
         );
-        serviceRepository.insert(
+        _serviceRepository.insert(
           service.serviceId.toString(),
           serviceDescription,
         );
-        trafficRepository.add(
+        _trafficRepository.add(
           Traffic(
             message: responseToString(response),
             protocol: Protocol.upnp,
@@ -90,13 +96,13 @@ class SSDPService {
 
   _onData(SearchMessage event) async {
     if (event is DeviceFound) {
-      if (seen.contains(event.message.location)) {
+      if (_seen.contains(event.message.location)) {
         return;
       }
 
-      seen.add(event.message.location);
+      _seen.add(event.message.location);
 
-      final response = await download.get(event.message.location);
+      final response = await _download.get(event.message.location);
 
       if (response == null) {
         return;
@@ -106,7 +112,7 @@ class SSDPService {
 
       final rootDocument = DeviceDescription.fromXml(xmlDocument);
 
-      trafficRepository.add(
+      _trafficRepository.add(
         Traffic(
           message: responseToString(response),
           protocol: Protocol.upnp,
@@ -128,33 +134,33 @@ class SSDPService {
 
       await _addDevice(event.message.location, device.description.device);
 
-      if (controller.isClosed) {
+      if (_controller.isClosed) {
         return;
       }
 
-      controller.add(device);
+      _controller.add(device);
     } else if (event is SearchComplete) {
-      controller.close();
+      _controller.close();
     }
   }
 
   Stream<UPnPDevice> findDevices() {
-    seen.clear();
-    controller = StreamController<UPnPDevice>.broadcast();
+    _seen.clear();
+    _controller = StreamController<UPnPDevice>.broadcast();
 
-    discovery.init().then((_) {
-      discovery.responses.listen(
+    _discovery.init().then((_) {
+      _discovery.responses.listen(
         _onData,
         onDone: () {
-          controller.close();
+          _controller.close();
         },
         onError: (err) {
-          controller.addError(err);
+          _controller.addError(err);
         },
       );
-      discovery.search();
+      _discovery.search();
     });
 
-    return stream;
+    return _stream;
   }
 }

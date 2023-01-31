@@ -5,14 +5,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:open_settings/open_settings.dart';
 
 import '../../../application/application.dart';
-import '../../../application/ioc.dart';
+import '../../../application/ioc/ioc.dart';
 import '../../../application/l10n/generated/l10n.dart';
-import '../../../application/review/review_service.dart';
 import '../../../application/routing/routes.dart';
 import '../../../domain/device/device.dart';
-import '../../changelog/widgets/changelog_dialog.dart';
 import '../../core/bloc/application_bloc.dart';
-import '../../review/widgets/review_prompt_dialog.dart';
 import '../bloc/discovery_bloc.dart';
 import '../widgets/device_list_item.dart';
 import '../widgets/refresh_button.dart';
@@ -56,7 +53,7 @@ class _Loaded extends StatefulWidget {
 class _LoadedState extends State<_Loaded> {
   final _bloc = sl<DiscoveryBloc>();
 
-  bool? _isScanning;
+  bool? _isScanning = false;
 
   final List<UPnPDevice> _devices = [];
   GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
@@ -81,6 +78,8 @@ class _LoadedState extends State<_Loaded> {
       _devices.add(event);
       _listKey.currentState?.insertItem(_devices.length - 1);
     });
+
+    widget.onRefresh();
   }
 
   @override
@@ -151,11 +150,6 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
     _discoveryBloc.discoverStream.listen((scanning) => setState(() {
           _scanning = scanning;
         }));
-
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      maybeShowChangelogDialog(context);
-      _discover();
-    });
   }
 
   Future _discover() {
@@ -169,24 +163,7 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
 
     return BlocConsumer<ApplicationBloc, ApplicationState>(
       bloc: _bloc,
-      listener: (context, state) {
-        if (state is ReviewRequested) {
-          showDialog(context: context, builder: (ctx) => ReviewPromptDialog())
-              .then(
-            (response) {
-              if (response == ReviewResponse.never) {
-                _bloc.add(NeverReview());
-              } else if (response == ReviewResponse.ok) {
-                _bloc.add(ReviewNow());
-              }
-            },
-          );
-        } else if (state is Ready) {
-          WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-            _discover();
-          });
-        }
-      },
+      listener: (context, state) {},
       buildWhen: (oldState, newState) => newState.build,
       builder: (context, state) {
         Widget body;

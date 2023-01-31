@@ -42,7 +42,7 @@ class UserAgentBuilder {
   }
 }
 
-@singleton
+@LazySingleton()
 class SearchRequestBuilder {
   final UserAgentBuilder userAgent;
 
