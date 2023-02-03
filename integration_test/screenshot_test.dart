@@ -100,7 +100,7 @@ void main() {
       sl.registerSingleton<SSDPService>(MockSSDPService());
     });
 
-    testWidgets('app launches', (tester) async {
+    testWidgets('screenshots', (tester) async {
       await tester.pumpWidget(app.MyAppHost());
 
       await tester.pumpAndSettle();
@@ -108,6 +108,19 @@ void main() {
       expect(Finders.deviceTile, findsOneWidget);
 
       await screenshot(tester, 'dashboard');
+
+      // Tap the device
+
+      await screenshot(tester, 'device_info');
+
+      // Tap services
+
+      await screenshot(tester, 'services');
+
+      // Example command with switch
+      // Example command with slider
+
+      // Traffic
     });
   });
 }
